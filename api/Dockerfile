@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY main.py .
+COPY api/main.py .
 COPY orchestrator ./orchestrator
 
 RUN pip install redis

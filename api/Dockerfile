@@ -5,7 +5,7 @@ WORKDIR /app
 COPY api/main.py .
 COPY orchestrator ./orchestrator
 
-RUN pip install redis
+RUN pip install fastapi uvicorn redis
 
-CMD ["python", "main.py"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 

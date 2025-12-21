@@ -2,7 +2,7 @@ import time
 from celery import Celery
 from fastapi import FastAPI, HTTPException
 import uuid
-from orchestrator.state import create_job, get_job, update_state
+from orchestrator.state import create_job, get_job, update_state, cancel_job
 from orchestrator.models import JobState
 
 app = FastAPI(title="Job Orchestrator API")
@@ -33,3 +33,15 @@ def fetch_job(job_id: str):
         "updated_at": job.updated_at,
         "error": job.error,
     }
+
+@app.delete("/jobs/{job_id}")
+def cancel(job_id: str):
+    success = cancel_job(job_id)
+    if not success:
+        raise HTTPException(
+            status_code=404,
+            detail="Job not found or cannot be cancelled",
+        )
+    return {"job_id": job_id, "state": JobState.CANCELLED}
+
+                            

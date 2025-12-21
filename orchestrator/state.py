@@ -64,3 +64,15 @@ def update_state(job_id: str, new_state: JobState, error: Optional[str] = None):
 def increment_attempt(job_id: str):
     r.hincrby(_job_key(job_id), "attempt", 1)
     r.hset(_job_key(job_id), "updated_at", Job.now())
+
+def cancel_job(job_id: str) -> bool:
+    job = get_job(job_id)
+    if not job:
+        return False
+
+    if job.state in {JobState.COMPLETED, JobState.FAILED}:
+        return False
+    update_state(job_id, JobState.CANCELLED)
+    return True
+
+    

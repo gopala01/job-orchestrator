@@ -19,7 +19,7 @@ app = Celery(
 def run_job(self, job_id: str):
     job = get_job(job_id)
     if not job:
-        raise ValueError("Job not found")
+        return
 
     if job.state == JobState.CANCELLED:
         return
@@ -27,9 +27,13 @@ def run_job(self, job_id: str):
     update_state(job_id, JobState.RUNNING)
 
     try:
-        # Simulate job processing
-        time.sleep(10)  # Replace with actual job logic
+        for _ in range(5):
+            time.sleep(10)  # Replace with actual job logic
+        job = get_job(job_id)
+        if job and job.state == JobState.CANCELLED:
+            return
         update_state(job_id, JobState.COMPLETED)
     except Exception as e:
         update_state(job_id, JobState.FAILED, error=str(e))
-        raise e
+        raise
+    

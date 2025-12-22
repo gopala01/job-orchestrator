@@ -1,12 +1,8 @@
 # Distributed Job Orchestration System
 
-This repository implements a **distributed job orchestration system** with
-explicit job lifecycle management, retries, failure handling, and cooperative
-cancellation.
+This repository implements a **distributed job orchestration system** with explicit job lifecycle management, retries, failure handling, and cooperative cancellation.
 
-The system is built on top of **FastAPI, Celery, Redis, and RabbitMQ**, and is
-designed to **separate control-plane logic from task execution**, mirroring
-production orchestration architectures.
+The system is built using **FastAPI, Celery, Redis, and RabbitMQ**, and is designed to **separate control-plane logic from task execution**, mirroring patterns used in production orchestration platforms.
 
 ---
 
@@ -15,25 +11,19 @@ production orchestration architectures.
 The system is composed of the following services:
 
 - **API Service (FastAPI)**  
-  Exposes a REST interface for job submission, status inspection, and
-  cancellation.  
-  Owns control-plane responsibilities and enforces valid job state transitions.
+  Exposes a REST interface for job submission, status inspection, and cancellation.  
+  Acts as the **control plane**, enforcing valid job state transitions and lifecycle rules.
 
 - **Worker Service (Celery)**  
-  Executes jobs asynchronously, updates job state, handles retries with backoff,
-  and cooperatively respects cancellation requests.
+  Executes jobs asynchronously, handles retries with backoff, updates job state, and cooperatively respects cancellation requests.
 
 - **Redis**  
-  Acts as the **authoritative job state store**, persisting lifecycle state,
-  attempt counts, timestamps, and error information.
+  Serves as the **authoritative job state store**, persisting lifecycle state, attempt counts, timestamps, and error information.
 
 - **RabbitMQ**  
-  Provides durable message queuing for distributed task execution and worker
-  coordination.
+  Provides durable message queuing for distributed task execution and worker coordination.
 
-Shared orchestration logic (job models, state transitions, and validation)
-lives in the `orchestrator/` module and is reused by both API and worker
-services, ensuring consistency across the system.
+Shared orchestration logic—including job models, state transitions, and validation—lives in the `orchestrator/` module and is reused by both API and worker services to ensure consistency across the system.
 
 All services communicate over an internal Docker network.
 
@@ -47,13 +37,9 @@ CREATED → RUNNING → COMPLETED
 ↘ FAILED
 ↘ CANCELLED
 
-State transitions are validated and persisted to Redis, ensuring correctness
-under retries, failures, and concurrent worker execution.
+All state transitions are validated and persisted to Redis, ensuring correctness under retries, failures, and concurrent worker execution.
 
-Cancellation is **cooperative**: workers periodically check job state and
-terminate execution early if cancellation is requested.
-
----
+Cancellation is **cooperative**: workers periodically check job state and terminate execution early if cancellation is requested, preventing unsafe or partial execution.
 
 ## API Surface
 
@@ -61,11 +47,12 @@ terminate execution early if cancellation is requested.
 - `GET /jobs/{job_id}` — retrieve job state and metadata
 - `DELETE /jobs/{job_id}` — request job cancellation
 
-The API is intentionally minimal and focused on orchestration concerns.
+The API is intentionally minimal and focused on orchestration concerns rather
+than execution details.
 
 ---
 
-## Current Status
+## Final Status
 
 - Docker Compose–based local environment
 - Redis-backed job state model with explicit lifecycle enforcement

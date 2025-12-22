@@ -1,4 +1,4 @@
-# Distributed Job Orchestration System
+# Distributed Task Orchestration Platform
 
 This repository implements a **distributed job orchestration system** with explicit job lifecycle management, retries, failure handling, and cooperative cancellation.
 

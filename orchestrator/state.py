@@ -1,11 +1,29 @@
-import redis
+import os
+import time
+from redis import Redis
+from redis.exceptions import ConnectionError
 from orchestrator.models import Job, JobState
 from typing import Optional
 
-REDIS_HOST = "redis"
-REDIS_PORT = 6379
+_redis = None
 
-r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+def get_redis() -> Redis:
+    global _redis
+    if _redis is not None:
+        return _redis
+
+    redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
+
+    for _ in range(10):
+        try:
+            r = Redis.from_url(redis_url, decode_responses=True)
+            r.ping()
+            _redis = r
+            return r
+        except ConnectionError:
+            time.sleep(1)
+
+    raise RuntimeError("Redis not reachable after retries")
 
 
 def _job_key(job_id: str) -> str:
@@ -20,7 +38,7 @@ def create_job(job_id: str) -> Job:
         created_at=Job.now(),
         updated_at=Job.now(),
     )
-
+    r = get_redis()
     r.hset(
         _job_key(job_id),
         mapping={
@@ -36,6 +54,7 @@ def create_job(job_id: str) -> Job:
 
 
 def get_job(job_id: str) -> Optional[Job]:
+    r = get_redis()
     data = r.hgetall(_job_key(job_id))
     if not data:
         return None
@@ -51,6 +70,7 @@ def get_job(job_id: str) -> Optional[Job]:
 
 
 def update_state(job_id: str, new_state: JobState, error: Optional[str] = None):
+    r = get_redis()
     r.hset(
         _job_key(job_id),
         mapping={
@@ -62,8 +82,10 @@ def update_state(job_id: str, new_state: JobState, error: Optional[str] = None):
 
 
 def increment_attempt(job_id: str):
+    r = get_redis()
     r.hincrby(_job_key(job_id), "attempt", 1)
     r.hset(_job_key(job_id), "updated_at", Job.now())
+
 
 def cancel_job(job_id: str) -> bool:
     job = get_job(job_id)
@@ -72,7 +94,6 @@ def cancel_job(job_id: str) -> bool:
 
     if job.state in {JobState.COMPLETED, JobState.FAILED}:
         return False
+
     update_state(job_id, JobState.CANCELLED)
     return True
-
-    

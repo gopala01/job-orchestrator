@@ -19,6 +19,37 @@ env/
 *.log
 docker-compose.override.yml
 
+# ---- Redis / RabbitMQ data ----
+data/
+redis-data/
+rabbitmq-data/
+
+# ---- OS / Editor ----
+.DS_Store
+.idea/
+.vscode/
+*.swp
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+
+# ---- Virtual environments ----
+venv/
+.venv/
+env/
+
+# ---- Environment variables ----
+.env
+.env.*
+
+# ---- Docker ----
+*.log
+docker-compose.override.yml
+
 # ---- Redis / RabbitMQ data (if added later) ----
 data/
 redis-data/
@@ -29,3 +60,57 @@ rabbitmq-data/
 .idea/
 .vscode/
 *.swp
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+
+# ---- Virtual environments ----
+venv/
+.venv/
+env/
+
+# ---- Environment variables ----
+.env
+.env.*
+
+# ---- Docker ----
+*.log
+docker-compose.override.yml
+
+# ---- Redis / RabbitMQ data (if added later) ----
+data/
+redis-data/
+rabbitmq-data/
+
+# ---- OS / Editor ----
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swp
+# ---- Python ----
+__pycache__/
+# ---- Kubernetes ----
+*.kubeconfig
+.kube/
+
+# ---- Testing / Coverage ----
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ---- Build artifacts ----
+build/
+dist/
+
+# ---- Application logs ----
+logs/
+*.out
+
+# ---- macOS ----
+.AppleDouble
+.LSOverride

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: task-orchestration
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: task-orchestration-platform-worker:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: REDIS_URL
+              value: redis://redis.task-orchestration.svc.cluster.local:6379/0
+            - name: CELERY_BROKER_URL
+              value: amqp://guest:guest@rabbitmq.task-orchestration.svc.cluster.local:5672//

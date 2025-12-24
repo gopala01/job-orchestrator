@@ -1,15 +1,16 @@
+import os
 from celery import Celery
 import time
 
 from orchestrator.state import get_job, update_state, increment_attempt
 from orchestrator.models import JobState
 
-app = Celery(
+celery = Celery(
     "worker",
-    broker="amqp://rabbitmq",
-    backend="redis://redis"
+    broker= os.getenv("CELERY_BROKER_URL"),
+    backend= os.getenv("REDIS_URL"),
 )
-@app.task(
+@celery.task(
     bind=True,
     autoretry_for=(Exception,),
     retry_backoff=5,

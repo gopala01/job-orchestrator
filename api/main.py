@@ -1,4 +1,5 @@
 import time
+import os
 from celery import Celery
 from fastapi import FastAPI, HTTPException
 import uuid
@@ -9,8 +10,8 @@ app = FastAPI(title="Job Orchestrator API")
 
 celery_app = Celery(
     "api",
-    broker="amqp://rabbitmq",
-    backend="redis://redis"
+    broker = os.getenv("CELERY_BROKER_URL"),
+    backend = os.getenv("REDIS_URL"),
 )
 
 @app.post("/jobs")
